@@ -9,3 +9,11 @@ void Button_ini(void)
 	GPIOC->OSPEEDR = 0x00000000;			//output speed - low
 	GPIOC->PUPDR = 0x00000000;				//no pull-up, no pull-down
 }
+
+uint8_t  Button_read(void)
+{
+	if (READ_BIT(GPIOC->IDR, GPIO_IDR_ID13) != RESET)
+		return 1;
+	else
+		return 0;
+}
