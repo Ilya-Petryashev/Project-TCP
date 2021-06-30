@@ -11,25 +11,10 @@
 uint32_t delay_count = 0, temp = 0;
 volatile uint8_t button_count = 0, button_state = 0;
 
-/*void USART2_IRQHandler(void) 
+void USART2_IRQHandler(void) 
 {  
-	// prepyvanie po peredache
-	if(USART_GetITStatus(USART2, USART_IT_TXE) == 1)
-	{
-		USART_ClearITPendingBit(USART2, USART_IT_TXE); // ochistka bita prerivaniya
-	
-		if (i != i_size)
-		{
-			USART_SendData(USART2, TX_buffer[i]);
-			i++;
-		}
-		else
-		{
-			USART_ITConfig(USART2, USART_IT_TXE, DISABLE);
-			i = 0;
-		}
-	}
-}*/
+	// handler needed
+}
 
 void SysTick_Handler(void)
 {
