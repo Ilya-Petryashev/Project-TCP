@@ -3,15 +3,15 @@
 #include "SysTimer.h"
 #include "LED.h"
 #include "Button.h"
-#include "Usart.h"
+#include "Usart_my.h"
 
-#define LED_ON()		SET_BIT(GPIOB->ODR, GPIO_ODR_OD7)
-#define LED_OFF()		CLEAR_BIT(GPIOB->ODR, GPIO_ODR_OD7)
+#define LED_ON()	SET_BIT(GPIOB->ODR, GPIO_ODR_OD7)
+#define LED_OFF()	CLEAR_BIT(GPIOB->ODR, GPIO_ODR_OD7)
 
 uint32_t delay_count = 0, temp = 0;
 volatile uint8_t button_count = 0, button_state = 0;
 
-void USART2_IRQHandler(void) 
+/*void USART2_IRQHandler(void) 
 {  
 	// prepyvanie po peredache
 	if(USART_GetITStatus(USART2, USART_IT_TXE) == 1)
@@ -29,7 +29,7 @@ void USART2_IRQHandler(void)
 			i = 0;
 		}
 	}
-}
+}*/
 
 void SysTick_Handler(void)
 {
@@ -73,7 +73,8 @@ int main(void)
 	
 	while(1) 
 	{
-		//---------------
+		if (Button_read() == 1) {LED_ON();}
+		else {LED_OFF();}
 	}
 }
 
