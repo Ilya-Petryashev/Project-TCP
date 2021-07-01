@@ -5,4 +5,4 @@
 #include "stm32f7xx.h"
 
 void Button_ini(void);
-uint8_t  Button_read(void);
+uint8_t  Button_Read(void);

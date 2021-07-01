@@ -6,12 +6,10 @@
 
 #define USART_ReceiveData	(USART2->RDR & 0xFF)
 
-uint8_t RX_buf = 0, RX_flag = 0;
-
 void USART2_IRQHandler(void);
 void USART_ini(void);
-uint8_t Is_TXE_Set(void);
-uint8_t Is_TC_Set(void);
+uint8_t USART_TXE_Read(void);
+uint8_t USART_TC_Read(void);
 void USART_TransmitData(uint8_t data);
 	
 typedef struct

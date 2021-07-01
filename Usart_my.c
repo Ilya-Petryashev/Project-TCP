@@ -1,5 +1,7 @@
 #include "Usart_my.h"
 
+uint8_t RX_buf = 0, RX_flag = 0;
+
 void USART_ini(void)
 {
 	// init PORT A (RX - PA3, TX - PA2)
@@ -25,7 +27,7 @@ void USART_ini(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-uint8_t Is_TXE_Set(void)
+uint8_t USART_TXE_Read(void)
 {
 	if (READ_BIT(USART2->ISR, USART_ISR_TXE) != RESET)
 		return 1;
@@ -33,7 +35,7 @@ uint8_t Is_TXE_Set(void)
 		return 0;
 }
 
-uint8_t Is_TC_Set(void)
+uint8_t USART_TC_Read(void)
 {
 	if (READ_BIT(USART2->ISR, USART_ISR_TC) != RESET)
 		return 1;
@@ -53,5 +55,6 @@ void USART2_IRQHandler(void)
 //-----------------------------------------------------------------------------
 void USART_TransmitData(uint8_t data)
 {
-	USART2->TDR = data;
+	if (USART_TXE_Read() == 1)
+		USART2->TDR |= data & 0x000000FF;
 }

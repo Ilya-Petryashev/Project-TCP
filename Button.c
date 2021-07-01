@@ -10,7 +10,7 @@ void Button_ini(void)
 	GPIOC->PUPDR = 0x00000000;				//no pull-up, no pull-down
 }
 
-uint8_t  Button_read(void)
+uint8_t  Button_Read(void)
 {
 	if (READ_BIT(GPIOC->IDR, GPIO_IDR_ID13) != RESET)
 		return 1;

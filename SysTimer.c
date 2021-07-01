@@ -1,6 +1,8 @@
 #include "SysTimer.h"
 #include "Button.h"
 
+volatile uint8_t button_count = 0, button_state = 0, button_flag = 0;
+
 void SysTick_ini(void)
 {
 	SysTick->LOAD = (1000000/1000)-1;
@@ -10,7 +12,7 @@ void SysTick_ini(void)
 
 void SysTick_Handler(void)
 {
-	if (Button_read() == 1)
+	if (Button_Read() == 1)
 	{
 		if (button_count < 10)
 		{
@@ -21,6 +23,7 @@ void SysTick_Handler(void)
 			if (button_state == 0) 
 			{
 				button_state = 1;
+				button_flag = 1;
 			}
 		}
 	}
@@ -38,4 +41,17 @@ void SysTick_Handler(void)
 			}
 		}
 	}
+}
+
+uint8_t  Button_Flag_Read(void)
+{
+	if (button_flag != 0)
+		return 1;
+	else
+		return 0;
+}
+
+void Button_Flag_Write(uint8_t value)
+{
+	button_flag = value;
 }
