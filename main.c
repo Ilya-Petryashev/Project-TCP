@@ -22,7 +22,6 @@ int main(void)
 		if (Button_Flag_Read() == 1) 
 		{
 			Button_Flag_Write(0);
-			LED_ON();
 			USART_TransmitData(0x5D);
 			while (USART_TXE_Read() != 1) {}
 		}

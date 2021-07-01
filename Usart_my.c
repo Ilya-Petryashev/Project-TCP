@@ -1,4 +1,5 @@
 #include "Usart_my.h"
+#include "LED.h"
 
 uint8_t RX_buf = 0, RX_flag = 0;
 
@@ -10,7 +11,7 @@ void USART_ini(void)
 	GPIOA->MODER |= GPIO_MODER_MODER2_1 | GPIO_MODER_MODER3_1;	//PA2,PA3 works alternate function mode
 	GPIOA->OTYPER = 0x00000000;									//output type - push-pull (HL - 1, LL - 0) - reset value
 	GPIOA->OSPEEDR = 0x0C000000;								//output speed - low - reset value
-	GPIOA->PUPDR = 0x64000000;									//no pull-up, no pull-down - reset value
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR2_0 | GPIO_PUPDR_PUPDR3_0;									//no pull-up, no pull-down - reset value = 0x64000000
 	GPIOA->AFR[0] |= 0x00007700;								// AF7 for A3 and A2 
 	
 	
@@ -20,7 +21,7 @@ void USART_ini(void)
 	//USART2->CR3 = USART_CR3_OVRDIS;	//disable overrun error bit
 	USART2->BRR = 0x45;   // 69d  - speed
 	USART2->CR1 |= USART_CR1_RE | USART_CR1_TE | USART_CR1_RXNEIE; 
-	USART2->CR1 = USART_CR1_UE;
+	USART2->CR1 |= USART_CR1_UE;
 		
 	NVIC_EnableIRQ(USART2_IRQn);
 }
@@ -56,5 +57,8 @@ void USART2_IRQHandler(void)
 void USART_TransmitData(uint8_t data)
 {
 	if (USART_TXE_Read() == 1)
+	{
 		USART2->TDR |= data & 0x000000FF;
+		LED_ON();
+	}
 }

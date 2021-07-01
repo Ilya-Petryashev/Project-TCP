@@ -14,9 +14,9 @@ void USART_TransmitData(uint8_t data);
 	
 typedef struct
 {
-	uint32_t T_ID;
-	uint32_t R_ID;
-	uint32_t MLen;
+	uint32_t T_ID;			//ID of Transmitter
+	uint32_t R_ID;			//ID of Receiver
+	uint32_t MLen;			//Message length
 	uint8_t data[46];
-	uint16_t checksum;
+	uint16_t checksum;	
 } Data_packet;
