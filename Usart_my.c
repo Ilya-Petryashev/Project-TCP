@@ -15,9 +15,43 @@ void USART_ini(void)
 	// init USART2
 	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
 	
-	USART2->CR3 = USART_CR3_OVRDIS;
-	USART2->CR1 |= USART_CR1_UE | USART_CR1_RE | USART_CR1_TE | USART_CR1_RXNEIE; 
+	//USART2->CR3 = USART_CR3_OVRDIS;	//disable overrun error bit
 	USART2->BRR = 0x45;   // 69d  - speed
+	USART2->CR1 |= USART_CR1_RE | USART_CR1_TE | USART_CR1_RXNEIE; 
+	USART2->CR1 = USART_CR1_UE;
 		
 	NVIC_EnableIRQ(USART2_IRQn);
+}
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+uint8_t Is_TXE_Set(void)
+{
+	if (READ_BIT(USART2->ISR, USART_ISR_TXE) != RESET)
+		return 1;
+	else
+		return 0;
+}
+
+uint8_t Is_TC_Set(void)
+{
+	if (READ_BIT(USART2->ISR, USART_ISR_TC) != RESET)
+		return 1;
+	else
+		return 0;
+}
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+void USART2_IRQHandler(void) 
+{  
+	RX_buf = (USART2->RDR & 0xFF);
+	RX_flag = 1;
+}
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+void USART_TransmitData(uint8_t data)
+{
+	USART2->TDR = data;
 }

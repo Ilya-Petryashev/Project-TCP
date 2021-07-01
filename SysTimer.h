@@ -6,3 +6,5 @@
 
 void SysTick_ini(void);
 void SysTick_Handler(void);
+
+volatile uint8_t button_count = 0, button_state = 0;
