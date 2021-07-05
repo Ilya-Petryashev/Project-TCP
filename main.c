@@ -14,8 +14,6 @@ int main(void)
 	LED_ini();
 	Button_ini();
 	USART_ini();
-	
-	//USART_TransmitData(0x5D);
 		
 	while(1) 
 	{
@@ -23,9 +21,24 @@ int main(void)
 		{
 			Button_Flag_Write(0);
 			USART_TransmitData(0x5D);
-			while (USART_TXE_Read() != 1) {}
+			while (USART_TC_Read() != 1) {}
 		}
 		else {LED_OFF();}
+		
+		if (USART_RXE_Read() == 1)
+		{
+			temp = 1;
+		}
+		
+		/*    Data_packet.T_ID = 0xFFFFFFFF;
+    Data_packet.R_ID = 0x00000000;
+    Data_packet.Mlen = 46;
+    for (int i = 0; i<=45; i++)
+    {
+        Data_packet.data[i] = i;
+    }
+    Data_packet.checksum = 666;*/
+		
 		
 	}
 }

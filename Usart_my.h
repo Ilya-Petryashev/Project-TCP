@@ -11,6 +11,7 @@ void USART_ini(void);
 uint8_t USART_TXE_Read(void);
 uint8_t USART_TC_Read(void);
 void USART_TransmitData(uint8_t data);
+uint8_t USART_RXE_Read(void);
 	
 typedef struct
 {
