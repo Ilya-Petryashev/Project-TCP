@@ -1,7 +1,7 @@
 #include "SysTimer.h"
 #include "Button.h"
 
-volatile uint8_t button_count = 0, button_state = 0, button_flag = 0;
+volatile uint8_t button_count = 0, button_state = 0, button_flag = 0, delay_count;
 
 void SysTick_ini(void)
 {
@@ -41,8 +41,15 @@ void SysTick_Handler(void)
 			}
 		}
 	}
+	delay_count--;
+	
 }
 
+void delay_ms(uint8_t delay_temp)
+	{
+		delay_count = delay_temp;
+		while(delay_count){}
+	}
 uint8_t  Button_Flag_Read(void)
 {
 	if (button_flag != 0)

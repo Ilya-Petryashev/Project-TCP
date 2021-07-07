@@ -46,55 +46,51 @@ void SetOnCons(DCB* dcb)
        dcb->Parity = NOPARITY;         //  parity bit
 }
 
- 
 void ReadCOM(uint8_t* buf)
 {
+    bool read = 0;
     unsigned long  iSize;
     int sReceivedChar;
+    uint8_t m = 0;
 
-    while (true)
-    { 
-
-       bool read = ReadFile(hCom, buf, 64, &iSize, 0);
-
+    while ((buf[62] == 0) & (buf[63] == 0))
+    {
+   
+        read = ReadFile(hCom, buf, 64, &iSize, 0);
         if (iSize > 64)
         {
             iSize = 64;
         }
         for (int i = 0; i < iSize; i++)
         {
-            printf("%X\n", buf[i]);
-            // std::cout << (int)buf[i] << std::endl;
-        }
+            printf("%X ", buf[i]);
+        }        
     }
 }
 
-//uint16_t Crc16(uint8_t* pcBlock, uint8_t len) // hyetaaaaaaaaaaaaaaa
-//{
-//    /*
-//      Name  : CRC-16 CCITT
-//      Poly  : 0x1021    x^16 + x^12 + x^5 + 1
-//      Init  : 0xFFFF
-//      Revert: false
-//      XorOut: 0x0000
-//      Check : 0x29B1 ("123456789")
-//      MaxLen: 4095 байт (32767 бит) - обнаружение
-//          одинарных, двойных, тройных и всех нечетных ошибок
-//    */
-//    uint16_t crc = 0xFFFF;
-//    uint16_t pcBlock;
-//
-//    while (len--)
-//    {
-//        crc ^= *pcBlock++ << 8;
-//
-//        for (uint8_t i = 0; i < 8; i++)
-//            crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1;
-//    }
-//    return crc;
-//}
+void SendAnswer(void)
+{
+    bool write = 0;
+    unsigned long  iSize;
+    uint8_t m = 0xAF;
 
+    write = WriteFile(hCom, &m, 1, &iSize, 0);
+}
 
+uint16_t Crc16(uint8_t* arr, uint8_t len) 
+{
+    uint16_t crc = 0xFFFF;
+    (uint16_t) arr;
+
+    while (len--)
+    {
+        crc ^= *arr++ << 8;
+
+        for (uint8_t i = 0; i < 8; i++)
+            crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1;
+    }
+    return crc;
+}
 
 uint32_t ID_MC = 0xFFFFFFFF;
 uint32_t ID_PC = 0xAAAAAAAA;
@@ -126,10 +122,7 @@ int main(int argc, TCHAR* argv[])
 
     //  Initialize the DCB structure.
     SecureZeroMemory(&dcb, sizeof(DCB)); //     Pointer to the DCB to be filled with zero
-    dcb.DCBlength = sizeof(DCB);         //     returns the length in bytes
-
-    //  Build on the current configuration by first retrieving all current
-    //  settings.
+    dcb.DCBlength = sizeof(DCB);         //     returns the length in byte
 
     Success = GetCommState(hCom, &dcb);
 
@@ -150,24 +143,37 @@ int main(int argc, TCHAR* argv[])
         printf("GetCommState failed with error %d.\n", GetLastError());
         return (2);
     }
-    ReadCOM(buf);
+   
+     ReadCOM(buf);
+     SendAnswer();
 
-    data_packet.ID_sender = buf[3] | buf[2] << 8 | buf[1] << 16 | buf[0] << 24;
-    data_packet.ID_receiver = buf[7] | buf[6] << 8 | buf[5] << 16 | buf[4] << 24;
-    data_packet.ID_packet = buf[11] | buf[10] << 8 | buf[9] << 16 | buf[8] << 24;
-    data_packet.length_message = buf[15] | buf[14] << 8 | buf[13] << 16 | buf[12] << 24;
-    data_packet.checksum = buf[63] | buf[62] << 8;
+   data_packet.ID_sender = buf[3] | buf[2] << 8 | buf[1] << 16 | buf[0] << 24;
+   data_packet.ID_receiver = buf[7] | buf[6] << 8 | buf[5] << 16 | buf[4] << 24;
+   data_packet.ID_packet = buf[11] | buf[10] << 8 | buf[9] << 16 | buf[8] << 24;
+   data_packet.length_message = buf[15] | buf[14] << 8 | buf[13] << 16 | buf[12] << 24;
+   data_packet.checksum = buf[63] | buf[62] << 8;
 
-    for (int k = 16; k < 62; k++)
+   for (int k = 16; k < 62; k++)
+   {
+       data_packet.data[k - 16] = buf[k];
+   }
+     uint8_t massiv[62] = { 0 };
+     for (int m = 0; m < 62; m++)
+     {
+         massiv[m] = buf[m];
+     }
+   uint16_t check = Crc16(&massiv[0], 62);
+   printf("Checksum = %X\n", check);
+
+
+    if ((ID_MC == data_packet.ID_sender) & (ID_PC == data_packet.ID_receiver) & (check == data_packet.checksum)) //  
     {
-        data_packet.data[k - 16] = buf[k];
+        printf("Packet is received correctly\n");
     }
-
-   /* uint16_t checksum = Crc16(&buf[64], 64);*/
-
-   /* if ()
+    else
     {
-    }*/
+        printf("Packet is received INcorrectly\n");
+    }
 }
 
 

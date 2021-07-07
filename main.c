@@ -7,6 +7,7 @@
 
 uint8_t temp = 0;
 uint8_t TX_buffer[64] = {0};
+uint8_t exit_flag = 0;
 
 struct Data_packet
 {
@@ -38,14 +39,14 @@ void Fill_TX_buffer (void)
 	TX_buffer[10] = Packet.P_ID >> 8;
 	TX_buffer[11] = Packet.P_ID;
 	
-	TX_buffer[13] = Packet.MLen >> 24;
-	TX_buffer[14] = Packet.MLen >> 16;
-	TX_buffer[15] = Packet.MLen >> 8;
-	TX_buffer[16] = Packet.MLen;
+	TX_buffer[12] = Packet.MLen >> 24;
+	TX_buffer[13] = Packet.MLen >> 16;
+	TX_buffer[14] = Packet.MLen >> 8;
+	TX_buffer[15] = Packet.MLen;
 	
-	for (uint8_t i = 17; i < 62; i++)
+	for (uint8_t i = 16; i < 62; i++)
 	{
-		TX_buffer[i] = Packet.data[i - 17];
+		TX_buffer[i] = Packet.data[i - 16];
 	}
 	
 	Packet.checksum = CRC16(&TX_buffer[0], 62);
@@ -54,14 +55,13 @@ void Fill_TX_buffer (void)
 }
 
 
-uint16_t CRC16(uint8_t* pcBlock_t, uint8_t len)
+uint16_t CRC16(uint8_t* pcBlock, uint8_t len)
 {
     uint16_t crc = 0xFFFF;
-    uint16_t pcBlock = *pcBlock_t;
 
     while (len--)
     {
-        crc ^= pcBlock++ << 8;
+        crc ^= *pcBlock++ << 8;
 
         for (uint8_t i = 0; i < 8; i++)
             crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1;
@@ -94,16 +94,50 @@ int main(void)
 		if (Button_Flag_Read() == 1) 
 		{
 			Button_Flag_Write(0);
-			LED_ON();
-			USART_TransmitBuffer(&TX_buffer[64]);
-			while(USART_TC_Read() == 0) {}
+			while(exit_flag == 0)
+			{
+				USART_TransmitBuffer(&TX_buffer[0]);
+				delay_ms(9);
+				
+				if ((USART_RXE_Read() == 1) & (USART_ReadReceivedData() == 0xAF))
+				{
+					USART_RXE_Write(0);
+					LED_ON();
+					exit_flag = 1;
+				}
+				else 
+				{
+					USART_TransmitBuffer(&TX_buffer[0]);
+					delay_ms(9);
+					
+					if ((USART_RXE_Read() == 1) & (USART_ReadReceivedData() == 0xAF))
+					{
+						USART_RXE_Write(0);
+						LED_ON();
+						exit_flag = 1;
+					}
+					else 
+					{
+						USART_TransmitBuffer(&TX_buffer[0]);
+						delay_ms(9);
+						
+						if ((USART_RXE_Read() == 1) & (USART_ReadReceivedData() == 0xAF))
+						{
+							USART_RXE_Wriste(0);
+							LED_ON();
+							exit_flag = 1;
+						}
+						else 
+						{
+							delay_ms(36);
+						}
+					}
+				}
+			}
+			exit_flag = 0;
 			LED_OFF();
-		}
-		
-		if (USART_RXE_Read() == 1)
-		{
-			temp = 1;
 		}
 	}
 }
+
 

@@ -51,6 +51,7 @@ uint8_t USART_RXE_Read(void)
 	else
 		return 0;
 }
+
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -64,7 +65,12 @@ void USART2_IRQHandler(void)
 //-----------------------------------------------------------------------------
 void USART_TransmitData(uint8_t data)
 {
-	USART2->TDR |= data & 0x000000FF;
+	USART2->TDR = data;
+}
+
+uint8_t USART_ReadReceivedData(void)
+{
+	return RX_buf;
 }
 
 void USART_TransmitBuffer(uint8_t* TX_buffer)
@@ -75,8 +81,12 @@ void USART_TransmitBuffer(uint8_t* TX_buffer)
 	{
 		if (USART_TXE_Read() == 1)
 		{
-			USART_TransmitData(TX_buffer[i]);
+			USART_TransmitData(*TX_buffer++);
 			i++;
 		}
 	}
+}
+void USART_RXE_Write(uint8_t value)
+{
+	RX_flag = value;
 }

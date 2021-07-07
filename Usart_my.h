@@ -13,3 +13,5 @@ uint8_t USART_TC_Read(void);
 void USART_TransmitData(uint8_t data);
 uint8_t USART_RXE_Read(void);
 void USART_TransmitBuffer(uint8_t* TX_buffer);
+uint8_t USART_ReadReceivedData(void);
+void USART_RXE_Write(uint8_t value);
