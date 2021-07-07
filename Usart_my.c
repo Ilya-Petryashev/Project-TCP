@@ -43,6 +43,14 @@ uint8_t USART_TC_Read(void)
 	else
 		return 0;
 }
+
+uint8_t USART_RXE_Read(void)
+{
+	if (RX_flag != 0)
+		return 1;
+	else
+		return 0;
+}
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -56,9 +64,19 @@ void USART2_IRQHandler(void)
 //-----------------------------------------------------------------------------
 void USART_TransmitData(uint8_t data)
 {
-	if (USART_TXE_Read() == 1)
+	USART2->TDR |= data & 0x000000FF;
+}
+
+void USART_TransmitBuffer(uint8_t* TX_buffer)
+{	
+	uint8_t i = 0;
+	
+	while(i < 64)
 	{
-		USART2->TDR |= data & 0x000000FF;
-		LED_ON();
+		if (USART_TXE_Read() == 1)
+		{
+			USART_TransmitData(TX_buffer[i]);
+			i++;
+		}
 	}
 }
