@@ -28,18 +28,7 @@ int main(void)
 		if (USART_RXE_Read() == 1)
 		{
 			temp = 1;
-		}
-		
-		/*    Data_packet.T_ID = 0xFFFFFFFF;
-    Data_packet.R_ID = 0x00000000;
-    Data_packet.Mlen = 46;
-    for (int i = 0; i<=45; i++)
-    {
-        Data_packet.data[i] = i;
-    }
-    Data_packet.checksum = 666;*/
-		
-		
+		}		
 	}
 }
 
